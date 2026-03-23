@@ -1,0 +1,16 @@
+{
+  "name": "websocket-server",
+  "version": "1.0.0",
+  "description": "Servei de temps real amb Socket.IO i Redis",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "ioredis": "^5.3.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  }
+}
