@@ -73,5 +73,16 @@ services:
       API_URL: http://backend:8000
       SOCKET_URL: http://websockets:3000
 
+      
+# Adminer para gestionar la base de datos visualmente
+  adminer:
+    image: adminer
+    container_name: entrades_adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+
 volumes:
   mysql_data:
