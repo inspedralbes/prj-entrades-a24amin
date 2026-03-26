@@ -34,9 +34,9 @@ redis.on('message', (channel, message) => {
   if (channel === 'seat-updates') {
     try {
       const data = JSON.parse(message);
-      const room = `event_${data.eventId}`;
+      const room = `event_${data.event_id}`;
       io.to(room).emit('seat_updated', data);
-      console.log(`Emesa actualització a la sala ${room}: Seient ${data.seatId} -> ${data.status}`);
+      console.log(`Emesa actualització a la sala ${room}: Seient ${data.seat_id} -> ${data.status}`);
     } catch (e) {
       console.error('Error al processar missatge de Redis:', e);
     }
@@ -46,9 +46,9 @@ redis.on('message', (channel, message) => {
 io.on('connection', (socket) => {
   console.log("Un usuari s'ha connectat:", socket.id);
 
-  socket.on('join_event', (data) => {
-    if (!data.eventId) return;
-    const room = `event_${data.eventId}`;
+  socket.on('join_event', (eventId) => {
+    if (!eventId) return;
+    const room = `event_${eventId}`;
     socket.join(room);
     console.log(`L'usuari ${socket.id} s'ha unit a la sala ${room}`);
   });

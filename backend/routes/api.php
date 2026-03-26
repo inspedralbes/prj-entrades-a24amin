@@ -11,8 +11,17 @@ Route::post('/register', [AuthController::class , 'register']);
 Route::post('/login', [AuthController::class , 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class , 'logout']);
+    // Rutes protegides per usuari (Compra i Reserva)
     Route::get('/me', [AuthController::class , 'me']);
+    Route::post('/logout', [AuthController::class , 'logout']);
+
+    // Reserva Temporal
+    Route::post('/reservations', [ReservationController::class , 'reserve']);
+    Route::post('/reservations/release', [ReservationController::class , 'release']);
+
+    // Gestió de Comandes
+    Route::get('/orders', [OrderController::class , 'index']);
+    Route::post('/orders', [OrderController::class , 'store']);
 
     // Admin / CRUD Routes
     Route::get('/admin/events', 'App\Http\Controllers\Api\Admin\EventController@index');
