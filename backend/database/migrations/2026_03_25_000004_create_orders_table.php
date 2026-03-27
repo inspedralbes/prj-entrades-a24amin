@@ -10,8 +10,10 @@ return new class extends Migration {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('restrict');
-            $table->decimal('total_amount', 10, 2);
-            $table->enum('status', ['pending', 'completed', 'canceled'])->default('pending');
+            $table->foreignId('event_id')->constrained()->onDelete('restrict');
+            $table->decimal('total_price', 10, 2);
+            $table->string('order_number')->unique();
+            $table->enum('status', ['pending', 'paid', 'canceled'])->default('pending');
             $table->timestamps();
         });
     }

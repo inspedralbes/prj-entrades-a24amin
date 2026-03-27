@@ -9,7 +9,12 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'total_amount', 'status'];
+    protected $fillable = ['user_id', 'event_id', 'total_price', 'status', 'order_number'];
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
 
     public function user()
     {

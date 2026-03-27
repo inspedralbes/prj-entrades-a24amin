@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('seat_id')->unique()->constrained()->onDelete('restrict');
             $table->decimal('price_paid', 10, 2);
+            $table->string('ticket_code')->unique();
             $table->timestamps();
         });
     }
