@@ -1,0 +1,86 @@
+[
+    {
+        "name": "Sónar Festival 2026",
+        "description": "El festival de música, creativitat i tecnologia més important d'Europa.",
+        "location": "Fira Montjuïc / Fira Gran Via, Barcelona",
+        "event_date": "2026-06-12 10:00:00",
+        "image_url": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=2070&auto=format&fit=crop",
+        "zones": [
+            {
+                "name": "SonarDay Pass",
+                "price": 60,
+                "rows": 5,
+                "cols": 10
+            },
+            {
+                "name": "SonarNight VIP",
+                "price": 120,
+                "rows": 3,
+                "cols": 8
+            }
+        ]
+    },
+    {
+        "name": "F1 Spanish Grand Prix 2026",
+        "description": "Sent l'adrenalina de la Fórmula 1 al Circuit de Barcelona-Catalunya.",
+        "location": "Circuit de Barcelona-Catalunya, Montmeló",
+        "event_date": "2026-05-24 14:00:00",
+        "image_url": "https://images.unsplash.com/photo-1530661634027-4f691886178a?q=80&w=2070&auto=format&fit=crop",
+        "zones": [
+            {
+                "name": "Grandstand A",
+                "price": 350,
+                "rows": 8,
+                "cols": 12
+            },
+            {
+                "name": "General Admission",
+                "price": 90,
+                "rows": 10,
+                "cols": 15
+            }
+        ]
+    },
+    {
+        "name": "The Weeknd - After Hours 2026",
+        "description": "L'artista global The Weeknd presenta el seu nou show visual i sonor.",
+        "location": "Estadi Olímpic Lluís Companys, Barcelona",
+        "event_date": "2026-07-20 21:00:00",
+        "image_url": "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop",
+        "zones": [
+            {
+                "name": "Pista Premium",
+                "price": 180,
+                "rows": 6,
+                "cols": 10
+            },
+            {
+                "name": "Grada Alta",
+                "price": 75,
+                "rows": 12,
+                "cols": 15
+            }
+        ]
+    },
+    {
+        "name": "El Rei Lleó - El Musical",
+        "description": "L'espectacle més gran de Broadway arriba a Barcelona en una producció única.",
+        "location": "Teatre Victòria, Barcelona",
+        "event_date": "2026-04-15 19:30:00",
+        "image_url": "https://images.unsplash.com/photo-1503095396549-80705bc06ee0?q=80&w=2070&auto=format&fit=crop",
+        "zones": [
+            {
+                "name": "Plateat",
+                "price": 95,
+                "rows": 5,
+                "cols": 8
+            },
+            {
+                "name": "Amfiteatre",
+                "price": 55,
+                "rows": 8,
+                "cols": 12
+            }
+        ]
+    }
+]

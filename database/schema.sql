@@ -1,68 +1,65 @@
--- Creació de l'estructura inicial de la base de dades per al sistema de compra d'entrades.
--- Aquest fitxer serà executat automàticament per Docker la primera vegada que s'aixequi la BD.
-
+-- Schema for Ticket Platform
 CREATE DATABASE IF NOT EXISTS entrades_db;
 USE entrades_db;
 
--- Usuaris registrats
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Esdeveniments i informació de preus
-CREATE TABLE events (
+CREATE TABLE IF NOT EXISTS events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     event_date DATETIME NOT NULL,
     location VARCHAR(255) NOT NULL,
     description TEXT,
-    capacity INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    image_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Zones del plànol (per categoritzar, e.g. "Pista", "VIP", "Graderia A")
-CREATE TABLE event_zones (
+CREATE TABLE IF NOT EXISTS event_zones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );
 
--- Cada seient és un recurs atòmic individual
-CREATE TABLE seats (
+CREATE TABLE IF NOT EXISTS seats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_zone_id INT NOT NULL,
-    identifier VARCHAR(50) NOT NULL, -- ex: "F13-S2"
-    status ENUM('available', 'reserved', 'sold') DEFAULT 'available',
-    reserved_by INT NULL, -- L'usuari que el bloqueja
-    reserved_until DATETIME NULL, -- Quan acaba el timer de reserva (es netejarà si caduca)
+    row INT NOT NULL,
+    col INT NOT NULL,
+    status ENUM('available', 'reserved', 'occupied') DEFAULT 'available',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (event_zone_id) REFERENCES event_zones(id) ON DELETE CASCADE,
-    FOREIGN KEY (reserved_by) REFERENCES users(id) ON DELETE SET NULL,
-    UNIQUE(event_zone_id, identifier)
+    UNIQUE KEY (event_zone_id, row, col)
 );
 
--- Comandes finalitzades de manera satisfactòria
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    total_amount DECIMAL(10, 2) NOT NULL,
-    status ENUM('pending', 'completed', 'canceled') DEFAULT 'pending',
+    event_id INT NOT NULL,
+    total_price DECIMAL(10, 2) NOT NULL,
+    order_number VARCHAR(255) NOT NULL UNIQUE,
+    status ENUM('pending', 'paid', 'canceled') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (event_id) REFERENCES events(id)
 );
 
--- Les entrades ja venudes (la passarel·la entre la comanda total i el seient emès)
-CREATE TABLE tickets (
+CREATE TABLE IF NOT EXISTS tickets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
     seat_id INT NOT NULL,
     price_paid DECIMAL(10, 2) NOT NULL,
+    ticket_code VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (seat_id) REFERENCES seats(id) ON DELETE RESTRICT,
-    UNIQUE(seat_id) -- Un seient només pot ser venut a TICKET de forma única
+    FOREIGN KEY (seat_id) REFERENCES seats(id)
 );

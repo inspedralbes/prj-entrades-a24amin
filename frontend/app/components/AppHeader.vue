@@ -79,41 +79,31 @@ const logout = async () => {
   border: none;
   padding: 0.6rem 1rem;
   font-size: 0.9rem;
-  outline: none;
-}
-
-.search-bar button {
-  background-color: #004fb0; /* Accent blue for search like ticketmaster */
-  border: none;
-  padding: 0 1.2rem;
-  cursor: pointer;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .nav-link {
-  color: white;
+  color: #fff;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: background 0.2s;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  transition: opacity 0.3s;
 }
 
 .nav-link:hover {
-  background-color: rgba(255,255,255,0.1);
+  opacity: 0.7;
 }
 
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
+.btn-auth {
+  background-color: #fff;
+  color: #000;
 .user-name {
   font-weight: bold;
 }

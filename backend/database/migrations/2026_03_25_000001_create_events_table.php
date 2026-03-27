@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->dateTime('event_date');
             $table->string('location');
             $table->text('description')->nullable();
-            $table->integer('capacity');
+            $table->string('image_url')->nullable();
             $table->timestamps();
         });
     }

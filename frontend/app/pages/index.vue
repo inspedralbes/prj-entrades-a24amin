@@ -1,36 +1,48 @@
 <script setup>
-const config = useRuntimeConfig()
-const { data: events, error } = await useFetch(`${config.public.apiBase}/admin/events`)
+const runtimeConfig = useRuntimeConfig()
+const { data: events, error } = await useFetch(`${runtimeConfig.public.apiBase}/events`)
+
+const formatDateShoko = (dateStr) => {
+  const date = new Date(dateStr)
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  const dayName = days[date.getDay()]
+  const day = date.getDate()
+  const month = date.getMonth() + 1
+  const year = date.getFullYear()
+  return `${dayName}, ${day}.${month}.${year}`
+}
 </script>
 
 <template>
-  <div class="home-page">
+  <div class="shoko-home">
     <section class="hero">
-      <div class="hero-content">
+      <div class="container">
         <h1>Troba el teu proper esdeveniment</h1>
-        <p>Les millors entrades per a concerts, esports i teatre.</p>
+        <p>Les millors festes i esdeveniments de Barcelona en un sol lloc.</p>
+        <div class="search-bar-mock">
+          <input type="text" placeholder="Busca per artista, esdeveniment o recinte">
+          <button class="btn-search">🔍</button>
+        </div>
       </div>
     </section>
 
     <div class="container">
       <h2 class="section-title">Esdeveniments Destacats</h2>
       
-      <div v-if="error" class="error-msg">Error al carregar esdeveniments</div>
-      <div v-else-if="!events" class="loading">Carregant...</div>
-      
-      <div class="events-grid">
-        <div v-for="event in events" :key="event.id" class="event-card">
-          <div class="event-image">
-            <div class="date-badge">
-              <span class="day">{{ new Date(event.event_date).getDate() }}</span>
-              <span class="month">{{ new Date(event.event_date).toLocaleString('default', { month: 'short' }) }}</span>
-            </div>
+      <div v-if="error" class="error-msg">
+        No s'han pogut carregar els esdeveniments. Si us plau, torna-ho a intentar més tard.
+      </div>
+
+      <div v-else class="event-grid">
+        <div v-for="event in events" :key="event.id" class="shoko-card">
+          <div class="image-wrapper">
+            <img :src="event.image_url" :alt="event.name" class="event-image">
+            <div class="badge-icon">🎟️</div>
           </div>
-          <div class="event-info">
-            <h3>{{ event.name }}</h3>
-            <p class="location">📍 {{ event.location }}</p>
-            <p class="description">{{ event.description?.substring(0, 100) }}...</p>
-            <NuxtLink :to="'/events/' + event.id" class="btn-ticket">ENTRADES</NuxtLink>
+          <div class="card-content">
+            <p class="event-date">{{ formatDateShoko(event.event_date) }}</p>
+            <h3 class="event-title">{{ event.name }}</h3>
+            <NuxtLink :to="`/events/${event.id}`" class="btn-shoko">Buy tickets</NuxtLink>
           </div>
         </div>
       </div>
@@ -39,32 +51,28 @@ const { data: events, error } = await useFetch(`${config.public.apiBase}/admin/e
 </template>
 
 <style scoped>
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
+.shoko-home {
+  background-color: #000;
+  min-height: 100vh;
+  color: white;
+  padding-bottom: 5rem;
 }
 
 .hero {
-  background-color: var(--color-4);
-  color: white;
-  padding: 4rem 2rem;
+  padding: 6rem 1.5rem;
   text-align: center;
-  background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1459749411177-042180ce673c?q=80&w=2070&auto=format&fit=crop');
-  background-size: cover;
-  background-position: center;
 }
 
 .hero h1 {
-  font-size: 3rem;
   margin-bottom: 1rem;
-  color: white;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .section-title {
   font-size: 1.8rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid var(--color-3);
+  border-bottom: 2px solid #ff5500;
   padding-bottom: 0.5rem;
 }
 
@@ -75,15 +83,17 @@ const { data: events, error } = await useFetch(`${config.public.apiBase}/admin/e
 }
 
 .event-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: #050505;
+  border: 1px solid #111;
+  border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.3s;
+  transition: transform 0.3s, border-color 0.3s;
+  color: white;
 }
 
 .event-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-8px);
+  border-color: #ff5500;
 }
 
 .event-image {

@@ -40,28 +40,36 @@ const handleLogin = async () => {
 </template>
 
 <style scoped>
-.auth-page {
-  flex: 1;
+.login-container {
+  min-height: calc(100vh - 80px);
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #000;
+  background-image: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://shoko.biz/cdn/shop/files/shoko-barcelona-club-1.jpg?v=1631527015');
+  background-size: cover;
+  background-position: center;
   padding: 2rem;
-  background-color: var(--color-1);
 }
 
-.auth-card {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+.login-card {
   width: 100%;
   max-width: 400px;
+  background-color: rgba(10, 10, 10, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 4rem 3rem;
+  border-radius: 24px;
+  border: 1px solid #222;
+  color: #fff;
 }
 
-h2 {
+h1 {
+  color: #fff;
   text-align: center;
-  margin-bottom: 2rem;
-  color: var(--color-3);
+  margin-bottom: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-weight: 900;
 }
 
 .form-group {
@@ -75,25 +83,37 @@ label {
   color: var(--color-4);
 }
 
-input {
+.input-group input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  color: white;
+  padding: 1rem;
   width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
 }
 
-.btn-auth {
+.input-group input:focus {
+  border-color: #fff;
+  outline: none;
+}
+
+.btn-primary {
   width: 100%;
-  padding: 1rem;
-  background-color: var(--color-3);
-  color: white;
+  padding: 1.2rem;
+  background-color: #fff;
+  color: #000;
   border: none;
-  border-radius: 4px;
-  font-weight: bold;
+  border-radius: 50px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
-  font-size: 1.1rem;
-  margin-top: 1rem;
+  transition: transform 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: scale(1.02);
 }
 
 .error {

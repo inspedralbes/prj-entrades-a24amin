@@ -48,100 +48,140 @@ const updateSeatStatus = (seatId, newStatus) => {
 
 const getSeatColor = (status) => {
   switch (status) {
-    case 'available': return 'var(--color-3)' // Teal
-    case 'reserved': return 'var(--color-5)'  // Brown/Yellow
-    case 'occupied': return '#cccccc'         // Grey
-    default: return '#eee'
+    case 'available': return '#ff5500' // Neon Orange
+    case 'reserved': return '#444'      // Mid Grey
+    case 'occupied': return '#222'      // Dark Grey
+    default: return '#111'
   }
+}
+
+const selectedSeat = ref(null)
+const timeLeft = ref(600) // 10 minuts
+let timerInterval = null
+
+const startTimer = () => {
+  if (timerInterval) clearInterval(timerInterval)
+  timeLeft.value = 600
+  timerInterval = setInterval(() => {
+    if (timeLeft.value > 0) {
+      timeLeft.value--
+    } else {
+      clearInterval(timerInterval)
+      alert('La teva reserva ha expirat.')
+      selectedSeat.value = null
+    }
+  }, 1000)
+}
+
+const formatTime = (seconds) => {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${s < 10 ? '0' : ''}${s}`
 }
 
 const handleSeatClick = (seat) => {
   if (seat.status === 'available') {
+    selectedSeat.value = seat
     emit('select-seat', seat)
+    startTimer()
   }
 }
 </script>
 
 <template>
-  <div class="seat-map-container">
-    <div v-for="zone in localEvent.zones" :key="zone.id" class="zone-section">
-      <h3>{{ zone.name }} - {{ zone.price }}€</h3>
-      
-      <div class="svg-map">
-        <svg 
-          :width="8 * (seatSize + seatGap)" 
-          :height="5 * (seatSize + seatGap)"
-          viewBox="0 0 400 200"
-        >
-          <g v-for="seat in zone.seats" :key="seat.id">
-            <rect
-              :x="seat.col * (seatSize + seatGap)"
-              :y="seat.row * (seatSize + seatGap)"
-              :width="seatSize"
-              :height="seatSize"
-              :rx="4"
-              :fill="getSeatColor(seat.status)"
-              class="seat"
-              :class="{ 'clickable': seat.status === 'available' }"
-              @click="handleSeatClick(seat)"
-            >
-              <title>Fila {{ seat.row }}, Col {{ seat.col }} - {{ seat.status }}</title>
-            </rect>
-            <text
-              :x="seat.col * (seatSize + seatGap) + seatSize/2"
-              :y="seat.row * (seatSize + seatGap) + seatSize/2 + 5"
-              font-size="10"
-              fill="white"
-              text-anchor="middle"
-              pointer-events="none"
-            >
-              {{ seat.row }}{{ String.fromCharCode(65 + seat.col) }}
-            </text>
-          </g>
-        </svg>
-      </div>
+  <div class="seat-map-wrapper">
+    <div v-if="selectedSeat" class="timer-banner">
+      <span class="icon">⌛</span> Your selection will expire in: <strong>{{ formatTime(timeLeft) }}</strong>
     </div>
 
-    <div class="legend">
-      <div class="item"><span class="box available"></span> Lliure</div>
-      <div class="item"><span class="box reserved"></span> Reservat</div>
-      <div class="item"><span class="box occupied"></span> Ocupat</div>
+    <div class="seat-map-container">
+      <div v-for="zone in localEvent.zones" :key="zone.id" class="zone-section">
+        <h3>{{ zone.name }} — {{ zone.price }}€</h3>
+        
+        <div class="svg-map">
+          <svg :viewBox="`0 0 ${zone.seats.reduce((max, s) => Math.max(max, s.col), 0) * 45 + 50} ${zone.seats.reduce((max, s) => Math.max(max, s.row), 0) * 45 + 50}`">
+            <g v-for="seat in zone.seats" :key="seat.id" 
+               class="seat-group"
+               :class="{ 'selectable': seat.status === 'available', 'selected': selectedSeat?.id === seat.id }"
+               @click="handleSeatClick(seat)">
+              <rect 
+                :x="(seat.col - 1) * 45 + 10" 
+                :y="(seat.row - 1) * 45 + 10" 
+                width="35" height="35" rx="8"
+                :fill="selectedSeat?.id === seat.id ? '#ffffff' : getSeatColor(seat.status)"
+                :stroke="seat.status === 'available' ? '#444' : 'none'"
+                stroke-width="1"
+              />
+              <text 
+                :x="(seat.col - 1) * 45 + 27" 
+                :y="(seat.row - 1) * 45 + 32" 
+                text-anchor="middle" font-size="10" 
+                :fill="selectedSeat?.id === seat.id || seat.status === 'available' ? '#000' : '#444'">
+                {{ seat.row }}{{ String.fromCharCode(65 + seat.col - 1) }}
+              </text>
+            </g>
+          </svg>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.seat-map-wrapper {
+  background: #050505;
+  border: 1px solid #1a1a1a;
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.timer-banner {
+  background: #fff;
+  color: #000;
+  padding: 1rem;
+  text-align: center;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.8rem;
+}
+
 .seat-map-container {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 3rem;
+  color: white;
 }
 
 .zone-section {
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
+}
+
+.zone-section h3 {
+  color: #fff;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #222;
+  padding-bottom: 1rem;
 }
 
 .svg-map {
   display: flex;
   justify-content: center;
-  overflow-x: auto;
-  padding: 1rem;
+  background: #000;
+  padding: 2rem;
+  border-radius: 12px;
 }
 
-.seat {
-  transition: all 0.2s;
-  stroke: rgba(0,0,0,0.1);
-  stroke-width: 1;
+.seat-group {
+  cursor: default;
 }
 
-.seat.clickable {
+.seat-group.selectable {
   cursor: pointer;
 }
 
-.seat.clickable:hover {
-  filter: brightness(1.2);
-  stroke: var(--color-4);
   stroke-width: 2;
 }
 

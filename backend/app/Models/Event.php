@@ -9,7 +9,7 @@ class Event extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'event_date', 'location', 'description', 'capacity'];
+    protected $fillable = ['name', 'description', 'location', 'event_date', 'image_url'];
 
     public function zones()
     {

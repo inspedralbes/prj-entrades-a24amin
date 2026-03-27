@@ -17,11 +17,7 @@ onMounted(() => {
     <main class="app-main">
       <NuxtPage />
     </main>
-    <footer class="app-footer">
-      <div class="container">
-        <p>&copy; 2026 Ticket Platform Clone. DAW 2 Project.</p>
-      </div>
-    </footer>
+    <AppFooter />
   </div>
 </template>
 
@@ -34,8 +30,8 @@ onMounted(() => {
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--color-1);
-  color: var(--color-4);
+  background-color: #000;
+  color: #fff;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
@@ -43,18 +39,11 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: #000;
 }
 
 .app-main {
   flex: 1;
-}
-
-.app-footer {
-  background-color: var(--color-4);
-  color: #aaa;
-  padding: 2rem 0;
-  text-align: center;
-  font-size: 0.9rem;
 }
 
 .container {
@@ -65,10 +54,13 @@ body {
 
 /* Utilitats globals */
 .error-msg {
-  color: #e74c3c;
-  padding: 1rem;
-  background: #fdeaea;
-  border-radius: 4px;
-  margin: 1rem 0;
+  color: #ff5500;
+  padding: 1.5rem;
+  background: #111;
+  border: 1px solid #ff5500;
+  border-radius: 8px;
+  margin: 2rem 0;
+  text-align: center;
+  font-weight: bold;
 }
 </style>

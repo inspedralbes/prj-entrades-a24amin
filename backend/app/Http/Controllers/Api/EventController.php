@@ -9,6 +9,14 @@ use Illuminate\Http\Request;
 class EventController extends Controller
 {
     /**
+     * Display a listing of public events.
+     */
+    public function index()
+    {
+        return response()->json(Event::all());
+    }
+
+    /**
      * Display the specified event with its zones and seats.
      */
     public function show(string $id)

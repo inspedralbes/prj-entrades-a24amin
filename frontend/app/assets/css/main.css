@@ -1,9 +1,15 @@
 :root {
-  --color-1: #e9e0d1; /* Background/Cream */
-  --color-2: #91a398; /* Secondary/Sage */
-  --color-3: #33605a; /* Primary/Teal */
-  --color-4: #070001; /* Text/Black */
-  --color-5: #68462b; /* Accent/Brown */
+  --color-1: #000000;
+  /* Deep Black Background */
+  --color-2: #050505;
+  /* Near Black */
+  --color-3: #ff5500;
+  /* Vibrant Orange Contrast */
+  --color-4: #ffffff;
+  /* White Text */
+  --color-5: #111111;
+  /* Dark Accent */
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
 
   /* Semantic aliases */
   --bg-color: var(--color-1);
@@ -14,9 +20,12 @@
 
   /* Seat States */
   --seat-available: var(--color-2);
-  --seat-reserved: #f39c12; /* Orange for someone else */
-  --seat-selected: var(--color-3); /* Teal for me */
-  --seat-sold: var(--color-5); /* Brown for sold */
+  --seat-reserved: #f39c12;
+  /* Orange for someone else */
+  --seat-selected: var(--color-3);
+  /* Teal for me */
+  --seat-sold: var(--color-5);
+  /* Brown for sold */
 }
 
 body {
@@ -27,6 +36,8 @@ body {
   padding: 0;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   color: var(--primary-color);
 }

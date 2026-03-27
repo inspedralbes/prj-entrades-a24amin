@@ -3,7 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ReservationController;
+use App\Http\Controllers\Api\OrderController;
 
+Route::get('/events', 'App\Http\Controllers\Api\EventController@index');
 Route::get('/events/{id}', 'App\Http\Controllers\Api\EventController@show');
 
 // Auth Routes

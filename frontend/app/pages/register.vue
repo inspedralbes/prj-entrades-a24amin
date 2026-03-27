@@ -55,58 +55,66 @@ const handleRegister = async () => {
 </template>
 
 <style scoped>
-/* Mateixos estils que login */
 .auth-page {
-  flex: 1;
+  min-height: calc(100vh - 80px);
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #000;
+  background-image: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://shoko.biz/cdn/shop/files/shoko-barcelona-club-1.jpg?v=1631527015');
+  background-size: cover;
+  background-position: center;
   padding: 2rem;
-  background-color: var(--color-1);
 }
 
 .auth-card {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
+  background-color: rgba(10, 10, 10, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 4rem 3rem;
+  border-radius: 24px;
+  border: 1px solid #222;
+  color: #fff;
 }
 
-h2 {
+h1 {
+  color: #fff;
   text-align: center;
-  margin-bottom: 2rem;
-  color: var(--color-3);
-}
-
-.form-group {
-  margin-bottom: 1.2rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-weight: 600;
-}
-
-input {
-  width: 100%;
-  padding: 0.7rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  margin-bottom: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-weight: 900;
 }
 
 .btn-auth {
   width: 100%;
-  padding: 1rem;
-  background-color: var(--color-3);
-  color: white;
+  padding: 1.2rem;
+  background-color: #fff;
+  color: #000;
   border: none;
-  border-radius: 4px;
-  font-weight: bold;
+  border-radius: 50px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
+  transition: transform 0.2s;
   margin-top: 1rem;
+}
+
+.input-group input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  color: white;
+  padding: 1rem;
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+}
+
+.input-group input:focus {
+  border-color: #fff;
+  outline: none;
 }
 
 .error {

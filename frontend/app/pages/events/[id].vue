@@ -43,59 +43,103 @@ const onSeatSelect = (seat) => {
 </template>
 
 <style scoped>
+.event-detail {
+  background-color: #000;
+  min-height: 100vh;
+  color: white;
+  padding-bottom: 5rem;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 4rem 1.5rem;
 }
 
 .event-header {
-  margin-bottom: 2rem;
-  border-bottom: 1px solid #ddd;
+  margin-bottom: 3rem;
+  border-bottom: 1px solid #1a1a1a;
   padding-bottom: 1.5rem;
 }
 
+.event-header h1 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  margin: 0 0 1rem 0;
+}
+
 .meta {
-  color: #666;
-  font-size: 1.1rem;
+  color: #888;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .main-content {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 2rem;
+  grid-template-columns: 1fr 340px;
+  gap: 3rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .main-content { grid-template-columns: 1fr; }
 }
 
 .selection-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: #050505;
+  padding: 2.5rem;
+  border-radius: 24px;
+  border: 1px solid #222;
   position: sticky;
   top: 2rem;
 }
 
+.selection-card h3 {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 2rem;
+  font-weight: 900;
+}
+
+.selection-card p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
 .btn-primary {
   width: 100%;
-  padding: 1rem;
-  background-color: var(--color-3);
-  color: white;
+  padding: 1.2rem;
+  background-color: #fff;
+  color: #000;
   border: none;
-  border-radius: 4px;
-  font-weight: bold;
+  border-radius: 50px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
-  margin-top: 1rem;
+  margin-top: 2rem;
+  transition: transform 0.2s;
+}
+
+.btn-primary:hover {
+  transform: scale(1.02);
 }
 
 .back-link {
   display: inline-block;
-  margin-top: 2rem;
-  color: var(--color-3);
+  margin-top: 3rem;
+  color: #888;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.back-link:hover {
+  color: #fff;
 }
 </style>

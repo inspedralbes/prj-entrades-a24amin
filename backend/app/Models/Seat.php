@@ -9,7 +9,7 @@ class Seat extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['event_zone_id', 'identifier', 'status', 'reserved_by', 'reserved_until'];
+    protected $fillable = ['event_zone_id', 'row', 'col', 'status'];
 
     public function zone()
     {
