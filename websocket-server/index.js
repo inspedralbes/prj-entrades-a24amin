@@ -46,6 +46,9 @@ redis.on('message', (channel, message) => {
 io.on('connection', (socket) => {
   console.log("Un usuari s'ha connectat:", socket.id);
 
+  // Emetem el comptador total a tothom quan algú entra
+  io.emit('user_count_updated', io.engine.clientsCount);
+
   socket.on('join_event', (eventId) => {
     if (!eventId) return;
     const room = `event_${eventId}`;
@@ -55,6 +58,8 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Usuari desconnectat:', socket.id);
+    // Emetem el comptador total a tothom quan algú surt
+    io.emit('user_count_updated', io.engine.clientsCount);
   });
 });
 

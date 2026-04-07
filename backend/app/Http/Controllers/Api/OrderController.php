@@ -11,6 +11,8 @@ use App\Models\Ticket;
 use App\Models\Seat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderConfirmed;
 
 class OrderController extends Controller
 {
@@ -63,6 +65,7 @@ class OrderController extends Controller
                     'order_id' => $order->id,
                     'seat_id' => $seat->id,
                     'ticket_code' => strtoupper(Str::random(16)),
+                    'price_paid' => $seat->zone->price,
                 ]);
 
                 // Actualitzem l'estat permanent a la BD
@@ -79,6 +82,14 @@ class OrderController extends Controller
                 ]));
             }
 
+            // 3. Enviar correu de confirmació
+            try {
+                Mail::to($order->user->email)->send(new OrderConfirmed($order));
+            }
+            catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Error enviant correu: ' . $e->getMessage());
+            }
+
             return response()->json([
                 'message' => 'Compra finalitzada amb èxit!',
                 'order' => $order->load('tickets'),
@@ -91,7 +102,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::with(['event', 'tickets.seat'])->where('user_id', Auth::id())->latest()->get();
+        $orders = Order::with(['event', 'tickets.seat.zone'])->where('user_id', Auth::id())->latest()->get();
         return response()->json($orders);
     }
 }

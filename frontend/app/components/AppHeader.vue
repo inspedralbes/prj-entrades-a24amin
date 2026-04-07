@@ -13,22 +13,22 @@ const logout = async () => {
   <header class="app-header">
     <div class="header-content">
       <NuxtLink to="/" class="logo">
-        TICKET<span>MASTER</span> CLONE
+        SHÔKO<span>CINEMA</span>
       </NuxtLink>
 
-      <div class="search-bar">
-        <input type="text" placeholder="Busca per artista, esdeveniment o recinte" />
-        <button><i class="search-icon">🔍</i></button>
-      </div>
-
       <nav class="nav-links">
+        <NuxtLink to="/" class="nav-link">Cartellera</NuxtLink>
+        
         <template v-if="!auth.isLoggedIn">
-          <NuxtLink to="/login" class="nav-link">Accede/Regístrate</NuxtLink>
+          <NuxtLink to="/login" class="nav-link btn-auth">Accedir</NuxtLink>
         </template>
+        
         <template v-else>
+          <NuxtLink v-if="auth.user?.is_admin" to="/admin" class="nav-link admin-link">Admin</NuxtLink>
+          <NuxtLink to="/tickets" class="nav-link">Les meves entrades</NuxtLink>
           <div class="user-menu">
             <span class="user-name">{{ auth.user?.name }}</span>
-            <button @click="logout" class="nav-link logout-btn">Sortir</button>
+            <button @click="logout" class="logout-btn">Sortir</button>
           </div>
         </template>
       </nav>
@@ -38,10 +38,15 @@ const logout = async () => {
 
 <style scoped>
 .app-header {
-  background-color: var(--color-3); /* Teal */
+  background-color: #000;
   color: white;
-  padding: 0.8rem 1.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid #111;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .header-content {
@@ -54,63 +59,90 @@ const logout = async () => {
 
 .logo {
   font-size: 1.5rem;
-  font-weight: 800;
+  font-weight: 900;
   text-decoration: none;
   color: white;
-  letter-spacing: -1px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .logo span {
-  font-weight: 300;
+  color: #ff5500;
+  margin-left: 2px;
 }
 
-.search-bar {
+.nav-links {
   display: flex;
-  flex: 1;
-  max-width: 600px;
-  margin: 0 2rem;
-  background-color: white;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.search-bar input {
-  flex: 1;
-  border: none;
-  padding: 0.6rem 1rem;
-  font-size: 0.9rem;
-  color: #fff;
-  text-decoration: none;
-  font-size: 1.2rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+  align-items: center;
+  gap: 2rem;
 }
 
 .nav-link {
-  color: #fff;
+  color: #888;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-  transition: opacity 0.3s;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  transition: all 0.2s ease;
 }
 
-.nav-link:hover {
-  opacity: 0.7;
+.nav-link:hover, .nav-link.router-link-active:not(.btn-auth) {
+  color: #fff;
 }
 
-.btn-auth {
-  background-color: #fff;
-  color: #000;
+.nav-link.btn-auth {
+  background: #fff;
+  color: #000 !important;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  opacity: 1 !important;
+}
+
+.btn-auth:hover {
+  background: #ff5500;
+  color: #fff;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 1px solid #222;
+  padding-left: 1.5rem;
+}
+
 .user-name {
-  font-weight: bold;
+  font-weight: 900;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #ff5500;
+}
+
+.admin-link {
+  color: #00d4ff !important;
+  font-weight: 900;
+}
+
+.admin-link:hover {
+  text-shadow: 0 0 10px #00d4ffaa;
 }
 
 .logout-btn {
   background: none;
-  border: 1px solid white;
+  border: 1px solid #444;
+  color: #444;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 800;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  border-color: #fff;
+  color: #fff;
 }
 </style>

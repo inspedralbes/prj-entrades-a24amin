@@ -1,6 +1,7 @@
 <script setup>
 const runtimeConfig = useRuntimeConfig()
-const { data: events, error } = await useFetch(`${runtimeConfig.public.apiBase}/events`)
+const apiBase = import.meta.server ? runtimeConfig.apiBase : runtimeConfig.public.apiBase
+const { data: events, error } = await useFetch(`${apiBase}/events`)
 
 const formatDateShoko = (dateStr) => {
   const date = new Date(dateStr)
@@ -17,32 +18,32 @@ const formatDateShoko = (dateStr) => {
   <div class="shoko-home">
     <section class="hero">
       <div class="container">
-        <h1>Troba el teu proper esdeveniment</h1>
-        <p>Les millors festes i esdeveniments de Barcelona en un sol lloc.</p>
+        <h1>Troba la teva propera pel·lícula</h1>
+        <p>Les millors estrenes i clàssics a Shôko Cinema Barcelona.</p>
         <div class="search-bar-mock">
-          <input type="text" placeholder="Busca per artista, esdeveniment o recinte">
+          <input type="text" placeholder="Busca per títol, director o gènere">
           <button class="btn-search">🔍</button>
         </div>
       </div>
     </section>
 
     <div class="container">
-      <h2 class="section-title">Esdeveniments Destacats</h2>
+      <h2 class="section-title">En Cartellera</h2>
       
       <div v-if="error" class="error-msg">
-        No s'han pogut carregar els esdeveniments. Si us plau, torna-ho a intentar més tard.
+        No s'han pogut carregar les pel·lícules. Si us plau, torna-ho a intentar més tard.
       </div>
 
       <div v-else class="event-grid">
         <div v-for="event in events" :key="event.id" class="shoko-card">
           <div class="image-wrapper">
             <img :src="event.image_url" :alt="event.name" class="event-image">
-            <div class="badge-icon">🎟️</div>
+            <div class="badge-icon">🎬</div>
           </div>
           <div class="card-content">
             <p class="event-date">{{ formatDateShoko(event.event_date) }}</p>
             <h3 class="event-title">{{ event.name }}</h3>
-            <NuxtLink :to="`/events/${event.id}`" class="btn-shoko">Buy tickets</NuxtLink>
+            <NuxtLink :to="`/events/${event.id}`" class="btn-shoko">Comprar entrades</NuxtLink>
           </div>
         </div>
       </div>
@@ -67,6 +68,7 @@ const formatDateShoko = (dateStr) => {
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 2px;
+  font-weight: 950;
 }
 
 .section-title {
@@ -74,90 +76,113 @@ const formatDateShoko = (dateStr) => {
   margin-bottom: 2rem;
   border-bottom: 2px solid #ff5500;
   padding-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-weight: 900;
 }
 
-.events-grid {
+.event-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  gap: 2.5rem;
 }
 
-.event-card {
-  background: #050505;
-  border: 1px solid #111;
-  border-radius: 12px;
+.shoko-card {
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 20px;
   overflow: hidden;
-  transition: transform 0.3s, border-color 0.3s;
-  color: white;
+  transition: all 0.3s ease;
 }
 
-.event-card:hover {
-  transform: translateY(-8px);
+.shoko-card:hover {
+  transform: translateY(-10px);
   border-color: #ff5500;
+  box-shadow: 0 20px 40px rgba(255, 85, 0, 0.1);
+}
+
+.image-wrapper {
+  position: relative;
+  height: 400px;
 }
 
 .event-image {
-  height: 200px;
-  background-color: var(--color-2);
-  position: relative;
-  background-image: url('https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=2070&auto=format&fit=crop');
-  background-size: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.date-badge {
+.badge-icon {
   position: absolute;
   top: 1rem;
-  left: 1rem;
-  background-color: white;
+  right: 1rem;
+  background: rgba(0,0,0,0.8);
   padding: 0.5rem;
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.date-badge .day {
+  border-radius: 50%;
   font-size: 1.2rem;
-  font-weight: bold;
-  color: var(--color-3);
 }
 
-.date-badge .month {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  color: var(--color-4);
-}
-
-.event-info {
+.card-content {
   padding: 1.5rem;
-}
-
-.event-info h3 {
-  margin: 0 0 0.5rem 0;
-  color: var(--color-4);
-}
-
-.location {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 1rem;
-}
-
-.btn-ticket {
-  display: block;
-  width: 100%;
-  padding: 0.8rem;
-  background-color: #004fb0;
-  color: white;
   text-align: center;
-  text-decoration: none;
-  font-weight: bold;
-  border-radius: 4px;
-  transition: background 0.2s;
 }
 
-.btn-ticket:hover {
-  background-color: #003a85;
+.event-date {
+  font-size: 0.75rem;
+  color: #ff5500;
+  text-transform: uppercase;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+}
+
+.event-title {
+  font-size: 1.2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.btn-shoko {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  background: #fff;
+  color: #000;
+  text-decoration: none;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.btn-shoko:hover {
+  background: #ff5500;
+  color: #fff;
+}
+
+.search-bar-mock {
+  max-width: 600px;
+  margin: 2rem auto;
+  display: flex;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.search-bar-mock input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 1rem 1.5rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+.btn-search {
+  background: transparent;
+  border: none;
+  padding: 1rem;
+  cursor: pointer;
 }
 </style>

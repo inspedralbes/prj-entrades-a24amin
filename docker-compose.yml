@@ -59,7 +59,7 @@ services:
 
   # Nuxt 3 (Frontend Vue)
   frontend:
-    image: node:20-alpine
+    image: node:22-alpine
     container_name: entrades_frontend
     working_dir: /src
     volumes:
@@ -69,8 +69,10 @@ services:
     command: >
       sh -c "npm install && npm run dev || echo 'No hi ha codi nuxt encara, aturant.'"
     environment:
-      API_URL: http://backend:8000
-      SOCKET_URL: http://websockets:3000
+      NUXT_API_BASE: http://backend:8000/api
+      NUXT_PUBLIC_API_BASE: http://localhost:8000/api
+      SOCKET_URL: http://localhost:3000
+      NODE_OPTIONS: "--max-old-space-size=2048"
 
   # Adminer para gestionar la base de datos visualmente
   adminer:

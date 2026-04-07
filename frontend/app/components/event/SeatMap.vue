@@ -1,76 +1,34 @@
 <script setup>
-import { io } from 'socket.io-client'
+import { useEventStore } from '~/stores/event'
 
 const props = defineProps({
   event: Object
 })
 
-const emit = defineEmits(['select-seat'])
+const eventStore = useEventStore()
 
-const socket = ref(null)
-const localEvent = ref({ ...props.event })
-
-// Configuració del mapa
-const seatSize = 30
-const seatGap = 10
-
+// Initialitzem l'estat si encara no s'ha fet
 onMounted(() => {
-  // Connectem al servidor de WebSockets
-  // En producció el proxy de Nginx ens permet connectar a la mateixa URL
-  const socketUrl = process.env.NODE_ENV === 'production' 
-    ? window.location.origin 
-    : 'http://localhost:3000'
-  
-  socket.value = io(socketUrl)
-
-  // Unim-nos a la sala de l'esdeveniment
-  socket.value.emit('join_event', props.event.id)
-
-  // Escoltem actualitzacions
-  socket.value.on('seat_updated', (data) => {
-    console.log('Actualització de seient:', data)
-    updateSeatStatus(data.seat_id, data.status)
-  })
+  if (!eventStore.currentEvent || eventStore.currentEvent.id !== props.event.id) {
+    eventStore.fetchEvent(props.event.id)
+  }
 })
 
-onUnmounted(() => {
-  if (socket.value) socket.value.disconnect()
-})
+const getSeatColor = (seat, zone) => {
+  // Prioritat: Seleccionat per mi
+  if (eventStore.selectedSeats.find(s => s.id === seat.id)) {
+    return '#ffffff'
+  }
 
-const updateSeatStatus = (seatId, newStatus) => {
-  localEvent.value.zones.forEach(zone => {
-    const seat = zone.seats.find(s => s.id === seatId)
-    if (seat) {
-      seat.status = newStatus
-    }
-  })
-}
-
-const getSeatColor = (status) => {
-  switch (status) {
-    case 'available': return '#ff5500' // Neon Orange
-    case 'reserved': return '#444'      // Mid Grey
+  switch (seat.status) {
+    case 'available': 
+      if (zone.name.toLowerCase().includes('vip')) return '#ffd700' // Gold
+      if (zone.name.toLowerCase().includes('unique')) return '#00d4ff' // Cyan/Neon Blue
+      return '#ff5500' // Neon Orange (Standard)
+    case 'reserved': return '#444'
     case 'occupied': return '#222'      // Dark Grey
     default: return '#111'
   }
-}
-
-const selectedSeat = ref(null)
-const timeLeft = ref(600) // 10 minuts
-let timerInterval = null
-
-const startTimer = () => {
-  if (timerInterval) clearInterval(timerInterval)
-  timeLeft.value = 600
-  timerInterval = setInterval(() => {
-    if (timeLeft.value > 0) {
-      timeLeft.value--
-    } else {
-      clearInterval(timerInterval)
-      alert('La teva reserva ha expirat.')
-      selectedSeat.value = null
-    }
-  }, 1000)
 }
 
 const formatTime = (seconds) => {
@@ -79,49 +37,75 @@ const formatTime = (seconds) => {
   return `${m}:${s < 10 ? '0' : ''}${s}`
 }
 
-const handleSeatClick = (seat) => {
-  if (seat.status === 'available') {
-    selectedSeat.value = seat
-    emit('select-seat', seat)
-    startTimer()
+const handleSeatClick = async (seat) => {
+  if (seat.status === 'available' || eventStore.selectedSeats.find(s => s.id === seat.id)) {
+    await eventStore.toggleSeat(seat)
   }
+}
+
+const isSeatSelected = (seatId) => {
+  return eventStore.selectedSeats.some(s => s.id === seatId)
 }
 </script>
 
 <template>
   <div class="seat-map-wrapper">
-    <div v-if="selectedSeat" class="timer-banner">
-      <span class="icon">⌛</span> Your selection will expire in: <strong>{{ formatTime(timeLeft) }}</strong>
+    <!-- Timer Banner -->
+    <div v-if="eventStore.selectedSeats.length > 0" class="timer-banner">
+      <div class="timer-content">
+        <span class="icon">⌛</span> 
+        LA TEVA SELECCIÓ EXPIRA EN: <strong>{{ formatTime(eventStore.timeLeft) }}</strong>
+      </div>
+      <NuxtLink to="/checkout" class="checkout-btn">ANAR AL CHECKOUT →</NuxtLink>
     </div>
 
-    <div class="seat-map-container">
-      <div v-for="zone in localEvent.zones" :key="zone.id" class="zone-section">
-        <h3>{{ zone.name }} — {{ zone.price }}€</h3>
+    <div v-if="eventStore.loading" class="loader">Carregant mapa...</div>
+    
+    <div v-else-if="eventStore.currentEvent" class="seat-map-container">
+      <div v-for="zone in eventStore.currentEvent.zones" :key="zone.id" class="zone-section">
+        <div class="zone-header">
+          <h3>{{ zone.name }}</h3>
+          <span class="price-tag">{{ zone.price }}€ /entrada</span>
+        </div>
         
         <div class="svg-map">
           <svg :viewBox="`0 0 ${zone.seats.reduce((max, s) => Math.max(max, s.col), 0) * 45 + 50} ${zone.seats.reduce((max, s) => Math.max(max, s.row), 0) * 45 + 50}`">
             <g v-for="seat in zone.seats" :key="seat.id" 
                class="seat-group"
-               :class="{ 'selectable': seat.status === 'available', 'selected': selectedSeat?.id === seat.id }"
+               :class="{ 
+                 'selectable': seat.status === 'available', 
+                 'selected': isSeatSelected(seat.id),
+                 'reserved': seat.status === 'reserved' && !isSeatSelected(seat.id),
+                 'sold': seat.status === 'occupied'
+               }"
                @click="handleSeatClick(seat)">
               <rect 
                 :x="(seat.col - 1) * 45 + 10" 
                 :y="(seat.row - 1) * 45 + 10" 
                 width="35" height="35" rx="8"
-                :fill="selectedSeat?.id === seat.id ? '#ffffff' : getSeatColor(seat.status)"
-                :stroke="seat.status === 'available' ? '#444' : 'none'"
-                stroke-width="1"
+                :fill="getSeatColor(seat, zone)"
+                class="seat-rect"
               />
               <text 
                 :x="(seat.col - 1) * 45 + 27" 
                 :y="(seat.row - 1) * 45 + 32" 
                 text-anchor="middle" font-size="10" 
-                :fill="selectedSeat?.id === seat.id || seat.status === 'available' ? '#000' : '#444'">
-                {{ seat.row }}{{ String.fromCharCode(65 + seat.col - 1) }}
+                class="seat-label"
+                :fill="isSeatSelected(seat.id) || seat.status === 'available' ? '#000' : '#444'">
+                {{ seat.row }}{{ String.fromCharCode(64 + seat.col) }}
               </text>
             </g>
           </svg>
         </div>
+      </div>
+
+      <!-- Llegenda -->
+      <div class="legend">
+        <div class="legend-item"><span class="box available"></span> Standard</div>
+        <div class="legend-item"><span class="box vip"></span> VIP</div>
+        <div class="legend-item"><span class="box unique"></span> Unique</div>
+        <div class="legend-item"><span class="box selected"></span> Seleccionat</div>
+        <div class="legend-item"><span class="box reserved"></span> Ocupat</div>
       </div>
     </div>
   </div>
@@ -129,83 +113,151 @@ const handleSeatClick = (seat) => {
 
 <style scoped>
 .seat-map-wrapper {
-  background: #050505;
+  background: #0a0a0a;
   border: 1px solid #1a1a1a;
   border-radius: 24px;
   overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
 .timer-banner {
   background: #fff;
   color: #000;
-  padding: 1rem;
-  text-align: center;
+  padding: 0.8rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  font-size: 0.8rem;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+  border-bottom: 2px solid #ff5500;
+}
+
+.checkout-btn {
+  background: #000;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.checkout-btn:hover {
+  background: #ff5500;
+  transform: translateX(5px);
 }
 
 .seat-map-container {
   padding: 3rem;
-  color: white;
 }
 
-.zone-section {
-  margin-bottom: 4rem;
+.zone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #222;
+  margin-bottom: 2rem;
+  padding-bottom: 0.5rem;
 }
 
-.zone-section h3 {
+.zone-header h3 {
   color: #fff;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 2rem;
-  font-size: 1.1rem;
-  border-bottom: 1px solid #222;
-  padding-bottom: 1rem;
+  letter-spacing: 2px;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.price-tag {
+  color: #ff5500;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
 
 .svg-map {
   display: flex;
   justify-content: center;
   background: #000;
-  padding: 2rem;
-  border-radius: 12px;
+  padding: 2.5rem;
+  border-radius: 16px;
+  border: 1px solid #111;
 }
 
 .seat-group {
-  cursor: default;
+  transition: all 0.2s ease;
 }
 
 .seat-group.selectable {
   cursor: pointer;
 }
 
-  stroke-width: 2;
+.seat-group.selectable:hover .seat-rect {
+  fill: #fff;
+}
+
+.seat-rect {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.seat-group.selected .seat-rect {
+  filter: drop-shadow(0 0 5px #fff);
+  animation: pulse-selected 2s infinite;
+}
+
+@keyframes pulse-selected {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.seat-label {
+  pointer-events: none;
+  font-weight: 800;
+  user-select: none;
 }
 
 .legend {
   display: flex;
   justify-content: center;
-  gap: 2rem;
-  margin-top: 2rem;
-  font-size: 0.9rem;
+  gap: 2.5rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #111;
 }
 
-.legend .item {
+.legend-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.8rem;
+  font-size: 0.8rem;
+  color: #888;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .box {
-  width: 15px;
-  height: 15px;
-  border-radius: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
 }
 
-.box.available { background-color: var(--color-3); }
-.box.reserved { background-color: var(--color-5); }
-.box.occupied { background-color: #cccccc; }
+.box.available { background: #ff5500; }
+.box.vip { background: #ffd700; }
+.box.unique { background: #00d4ff; }
+.box.selected { background: #ffffff; }
+.box.reserved { background: #222222; }
+.box.sold { background: #222222; }
+
+.loader {
+  padding: 4rem;
+  text-align: center;
+  color: #444;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+}
 </style>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class EventController extends Controller
 {
@@ -48,5 +49,44 @@ class EventController extends Controller
         $event->delete();
 
         return response()->json(['message' => 'Esdeveniment eliminat']);
+    }
+
+    /**
+     * Obtenir estadístiques en temps real de l'esdeveniment.
+     */
+    public function stats(string $id)
+    {
+        $event = Event::with('zones.seats')->findOrFail($id);
+
+        $totalSeats = 0;
+        $occupiedSeats = 0;
+        $reservedSeats = 0;
+        $totalRevenue = 0;
+
+        foreach ($event->zones as $zone) {
+            foreach ($zone->seats as $seat) {
+                $totalSeats++;
+
+                if ($seat->status === 'occupied') {
+                    $occupiedSeats++;
+                    $totalRevenue += $zone->price;
+                }
+                else {
+                    // Verifiquem si està reservat a Redis
+                    if (Redis::exists("seat_reservation:{$seat->id}")) {
+                        $reservedSeats++;
+                    }
+                }
+            }
+        }
+
+        return response()->json([
+            'total_seats' => $totalSeats,
+            'occupied_seats' => $occupiedSeats,
+            'reserved_seats' => $reservedSeats,
+            'available_seats' => $totalSeats - $occupiedSeats - $reservedSeats,
+            'total_revenue' => $totalRevenue,
+            'occupancy_percentage' => $totalSeats > 0 ? round(($occupiedSeats / $totalSeats) * 100, 2) : 0
+        ]);
     }
 }
