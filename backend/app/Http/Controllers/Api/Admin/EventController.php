@@ -20,7 +20,6 @@ class EventController extends Controller
             'name' => 'required|string|max:255',
             'event_date' => 'required|date',
             'location' => 'required|string',
-            'capacity' => 'required|integer',
             'description' => 'nullable|string',
         ]);
 
@@ -35,7 +34,6 @@ class EventController extends Controller
             'name' => 'string|max:255',
             'event_date' => 'date',
             'location' => 'string',
-            'capacity' => 'integer',
             'description' => 'nullable|string',
         ]);
 
