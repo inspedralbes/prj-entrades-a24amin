@@ -1,15 +1,17 @@
-# Projecte Platforma de Venda d’Entrades en Temps Real
+# Shôko Cinema - Plataforma de Venda d'Entrades en Temps Real
 
 **Desenvolupador del projecte:** Amin  
-**Objectiu “breu” del projecte:** Crear una plataforma concurrent de venda d'entrades per a alta demanda, utilitzant tecnologia temps real amb clars sistemes de bloqueig temporal, on el client compateix pels seients competint amb altres clients.  
-**Estat “breu” del projecte:** Inicialització del sistema, preparació Docker i definició arquitectònica i de protocol de dades. Sense codi.  
-**Adreça web de la documentació phpdoc:** daw.inspedralbes.cat  
-**Adreça web del projecte desplegat:** nomBotiga.daw.inspedralbes.cat  
+**Objectiu “breu” del projecte:** Crear una plataforma concurrent de venda d'entrades per a alta demanda amb Socket.IO, Laravel i Nuxt 3.  
+**Estat “breu” del projecte:** Finalització de la Fase 9. Sistema complet amb reserva en temps real, pagament, panell d'administració amb analítica i tests de concurrència.  
+**Adreça web de la documentació phpdoc:** [daw.inspedralbes.cat](https://daw.inspedralbes.cat)  
+**Adreça web del projecte desplegat:** [shokocinema.daw.inspedralbes.cat](http://shokocinema.daw.inspedralbes.cat)  
 **Carpeta pels CSS, img, i JS:**  
-- `frontend/public/` (Nuxt)
-- `backend/public/` (Laravel)
+- `frontend/app/assets/`
+- `frontend/app/public/`
+- `backend/public/`
 
-**Enllaç a l’eina de prototipatge:** *(A omplir més endavant quan tinguis el Penpot/Figma).*
+**Enllaç a l’eina de prototipatge:** [Figma/Penpot Shôko Cinema](https://www.figma.com/file/...)
+
 
 ## Estructura de carpetes principal
 

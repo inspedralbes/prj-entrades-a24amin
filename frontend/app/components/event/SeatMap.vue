@@ -25,8 +25,8 @@ const getSeatColor = (seat, zone) => {
       if (zone.name.toLowerCase().includes('vip')) return '#ffd700' // Gold
       if (zone.name.toLowerCase().includes('unique')) return '#00d4ff' // Cyan/Neon Blue
       return '#ff5500' // Neon Orange (Standard)
-    case 'reserved': return '#444'
-    case 'occupied': return '#222'      // Dark Grey
+    case 'reserved': return '#555' // Grey (Pending/Locked)
+    case 'occupied': return '#222' // Dark Grey (Sold)
     default: return '#111'
   }
 }
@@ -37,9 +37,16 @@ const formatTime = (seconds) => {
   return `${m}:${s < 10 ? '0' : ''}${s}`
 }
 
+const processingSeat = ref(null)
+
 const handleSeatClick = async (seat) => {
   if (seat.status === 'available' || eventStore.selectedSeats.find(s => s.id === seat.id)) {
-    await eventStore.toggleSeat(seat)
+    processingSeat.value = seat.id
+    try {
+      await eventStore.toggleSeat(seat)
+    } finally {
+      processingSeat.value = null
+    }
   }
 }
 
@@ -78,7 +85,7 @@ const isSeatSelected = (seatId) => {
                  'reserved': seat.status === 'reserved' && !isSeatSelected(seat.id),
                  'sold': seat.status === 'occupied'
                }"
-               @click="handleSeatClick(seat)">
+               @click="(seat.status === 'available' || isSeatSelected(seat.id)) && handleSeatClick(seat)">
               <rect 
                 :x="(seat.col - 1) * 45 + 10" 
                 :y="(seat.row - 1) * 45 + 10" 
@@ -88,12 +95,36 @@ const isSeatSelected = (seatId) => {
               />
               <text 
                 :x="(seat.col - 1) * 45 + 27" 
-                :y="(seat.row - 1) * 45 + 32" 
+                :y="(seat.row - 1) * 45 + 28" 
                 text-anchor="middle" font-size="10" 
                 class="seat-label"
-                :fill="isSeatSelected(seat.id) || seat.status === 'available' ? '#000' : '#444'">
+                :fill="isSeatSelected(seat.id) || seat.status === 'available' ? '#000' : '#888'">
                 {{ seat.row }}{{ String.fromCharCode(64 + seat.col) }}
               </text>
+              <text 
+                v-if="seat.status !== 'available' && !isSeatSelected(seat.id)"
+                :x="(seat.col - 1) * 45 + 27" 
+                :y="(seat.row - 1) * 45 + 40" 
+                text-anchor="middle"
+                font-size="6" 
+                font-weight="950"
+                fill="#ff5500"
+                style="pointer-events: none; user-select: none; letter-spacing: 0;">
+                {{ seat.status === 'occupied' ? 'COMPRAT' : 'RESERVAT' }}
+              </text>
+
+              <!-- Local Loading Spinner -->
+              <circle 
+                v-if="processingSeat === seat.id"
+                :cx="(seat.col - 1) * 45 + 27" 
+                :cy="(seat.row - 1) * 45 + 27" 
+                r="10" 
+                fill="none" 
+                stroke="#fff" 
+                stroke-width="2" 
+                stroke-dasharray="20 10" 
+                class="spinner" 
+              />
             </g>
           </svg>
         </div>
@@ -101,11 +132,11 @@ const isSeatSelected = (seatId) => {
 
       <!-- Llegenda -->
       <div class="legend">
-        <div class="legend-item"><span class="box available"></span> Standard</div>
+        <div class="legend-item"><span class="box available"></span> Disponible</div>
         <div class="legend-item"><span class="box vip"></span> VIP</div>
         <div class="legend-item"><span class="box unique"></span> Unique</div>
         <div class="legend-item"><span class="box selected"></span> Seleccionat</div>
-        <div class="legend-item"><span class="box reserved"></span> Ocupat</div>
+        <div class="legend-item"><span class="box reserved"></span> Ocupat / Comprat</div>
       </div>
     </div>
   </div>
@@ -202,9 +233,24 @@ const isSeatSelected = (seatId) => {
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.spinner {
+  animation: rotate-spinner 0.8s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes rotate-spinner {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .seat-group.selected .seat-rect {
   filter: drop-shadow(0 0 5px #fff);
   animation: pulse-selected 2s infinite;
+}
+
+.seat-group.reserved, .seat-group.sold {
+  pointer-events: none !important;
+  cursor: default !important;
 }
 
 @keyframes pulse-selected {
@@ -249,7 +295,7 @@ const isSeatSelected = (seatId) => {
 .box.vip { background: #ffd700; }
 .box.unique { background: #00d4ff; }
 .box.selected { background: #ffffff; }
-.box.reserved { background: #222222; }
+.box.reserved { background: #555555; }
 .box.sold { background: #222222; }
 
 .loader {

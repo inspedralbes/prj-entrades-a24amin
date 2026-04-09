@@ -1,27 +1,58 @@
 <script setup>
 import { useAuthStore } from '~/stores/auth'
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  ArcElement
+import { Bar, Line } from 'vue-chartjs'
+import { 
+  Chart as ChartJS, 
+  Title, Tooltip, Legend, 
+  BarElement, CategoryScale, LinearScale, 
+  PointElement, LineElement 
 } from 'chart.js'
-import { Bar, Pie } from 'vue-chartjs'
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement)
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement, LineElement)
 
 const auth = useAuthStore()
 const config = useRuntimeConfig()
 const { $socket } = useNuxtApp()
 
 const stats = ref([])
+const salesEvolution = ref([])
 const activeUsers = ref(0)
 const loading = ref(true)
 const activeTab = ref('dashboard') // 'dashboard' | 'events'
+
+// Chart Data Computeds
+const occupancyChartData = computed(() => ({
+  labels: stats.value.map(s => s.event_name),
+  datasets: [{
+    label: 'Ocupació (%)',
+    backgroundColor: '#ff5500',
+    data: stats.value.map(s => s.occupancy_percentage)
+  }]
+}))
+
+const salesChartData = computed(() => ({
+  labels: salesEvolution.value.map(s => s.date),
+  datasets: [{
+    label: 'Vendes (€)',
+    borderColor: '#ffd700',
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    tension: 0.4,
+    fill: true,
+    data: salesEvolution.value.map(s => s.total)
+  }]
+}))
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false }
+  },
+  scales: {
+    y: { grid: { color: '#222' }, ticks: { color: '#666' } },
+    x: { grid: { display: false }, ticks: { color: '#666' } }
+  }
+}
 
 // Formulari per a nous esdeveniments
 const showEventModal = ref(false)
@@ -35,40 +66,6 @@ const eventForm = ref({
 })
 const savingEvent = ref(false)
 
-// Estructura per als gràfics
-const chartData = computed(() => ({
-  labels: stats.value.map(s => s.event_name),
-  datasets: [
-    {
-      label: 'Ocupació (%)',
-      backgroundColor: '#ff5500',
-      data: stats.value.map(s => s.occupancy_percentage)
-    }
-  ]
-}))
-
-const revenueData = computed(() => ({
-  labels: stats.value.map(s => s.event_name),
-  datasets: [
-    {
-      label: 'Ingressos (€)',
-      backgroundColor: ['#ffd700', '#ff8800', '#ffcc00'],
-      data: stats.value.map(s => s.total_revenue)
-    }
-  ]
-}))
-
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { labels: { color: '#fff', font: { weight: '900' } } }
-  },
-  scales: {
-    y: { ticks: { color: '#666' }, grid: { color: '#111' } },
-    x: { ticks: { color: '#666' }, grid: { color: '#111' } }
-  }
-}
 
 onMounted(async () => {
   if (!auth.isLoggedIn || !auth.user?.is_admin) {
@@ -76,12 +73,27 @@ onMounted(async () => {
   }
 
   await fetchAllStats()
+  await fetchGlobalStats()
   
   // Escoltant usuaris connectats real-time
   $socket.on('user_count_updated', (count) => {
     activeUsers.value = count
   })
+
+  // Demanem el comptador inicial un cop muntat el listener
+  $socket.emit('request_user_count')
 })
+
+const fetchGlobalStats = async () => {
+  try {
+    const data = await $fetch(`${config.public.apiBase}/admin/stats`, {
+      headers: { Authorization: `Bearer ${auth.token}` }
+    })
+    salesEvolution.value = data.sales_evolution
+  } catch (err) {
+    console.error('Error fetching global stats:', err)
+  }
+}
 
 const fetchAllStats = async () => {
   try {
@@ -187,19 +199,22 @@ const deleteEvent = async (id) => {
           </div>
         </div>
 
-        <!-- Gràfics -->
-        <div class="charts-row">
+        <!-- Charts Row -->
+        <div v-if="stats.length" class="charts-row">
           <div class="chart-container">
             <h3>Ocupació per Pel·lícula</h3>
-            <Bar :data="chartData" :options="chartOptions" />
+            <div class="chart-wrapper">
+              <Bar :data="occupancyChartData" :options="chartOptions" />
+            </div>
           </div>
           <div class="chart-container">
-            <h3>Distribució d'Ingressos</h3>
-            <div class="pie-wrapper">
-               <Pie :data="revenueData" :options="{ ...chartOptions, scales: {} }" />
+            <h3>Evolució de Vendes</h3>
+            <div class="chart-wrapper">
+              <Line :data="salesChartData" :options="chartOptions" />
             </div>
           </div>
         </div>
+
 
         <!-- Llista de Detalls -->
         <div class="details-table">
@@ -556,7 +571,7 @@ input:focus, textarea:focus {
 
 .charts-row {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
   margin-bottom: 3rem;
 }
@@ -570,7 +585,7 @@ input:focus, textarea:focus {
   border: 1px solid #1a1a1a;
   padding: 2.5rem;
   border-radius: 32px;
-  height: 450px;
+  height: 400px;
   display: flex;
   flex-direction: column;
 }
@@ -583,11 +598,9 @@ input:focus, textarea:focus {
   font-weight: 900;
 }
 
-.pie-wrapper {
+.chart-wrapper {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 0;
 }
 
 .details-table {

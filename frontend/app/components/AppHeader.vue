@@ -26,9 +26,12 @@ const logout = async () => {
         <template v-else>
           <NuxtLink v-if="auth.user?.is_admin" to="/admin" class="nav-link admin-link">Admin</NuxtLink>
           <NuxtLink to="/tickets" class="nav-link">Les meves entrades</NuxtLink>
-          <div class="user-menu">
-            <span class="user-name">{{ auth.user?.name }}</span>
-            <button @click="logout" class="logout-btn">Sortir</button>
+          <div class="header-right">
+            <SocketStatus class="status-badge" />
+            <div class="user-menu">
+              <span class="user-name">{{ auth.user?.name }}</span>
+              <button @click="logout" class="logout-btn">Sortir</button>
+            </div>
           </div>
         </template>
       </nav>
@@ -102,6 +105,16 @@ const logout = async () => {
 .btn-auth:hover {
   background: #ff5500;
   color: #fff;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.status-badge {
+  opacity: 0.8;
 }
 
 .user-menu {

@@ -46,8 +46,14 @@ redis.on('message', (channel, message) => {
 io.on('connection', (socket) => {
   console.log("Un usuari s'ha connectat:", socket.id);
 
-  // Emetem el comptador total a tothom quan algú entra
+  // Emetem el comptador total a tothom (incloent el que s'acaba de connectar)
   io.emit('user_count_updated', io.engine.clientsCount);
+  // També podem ser redundants i enviar-li directament a ell per si de cas
+  socket.emit('user_count_updated', io.engine.clientsCount);
+
+  socket.on('request_user_count', () => {
+    socket.emit('user_count_updated', io.engine.clientsCount);
+  });
 
   socket.on('join_event', (eventId) => {
     if (!eventId) return;

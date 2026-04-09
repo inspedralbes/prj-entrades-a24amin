@@ -20,4 +20,9 @@ class Seat extends Model
     {
         return $this->belongsTo(User::class , 'reserved_by');
     }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
 }

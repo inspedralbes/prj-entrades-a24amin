@@ -2,6 +2,19 @@
 const runtimeConfig = useRuntimeConfig()
 const apiBase = import.meta.server ? runtimeConfig.apiBase : runtimeConfig.public.apiBase
 const { data: events, error } = await useFetch(`${apiBase}/events`)
+const searchQuery = ref('')
+
+const filteredEvents = computed(() => {
+  if (!events.value) return []
+  if (!searchQuery.value) return events.value
+
+  const query = searchQuery.value.toLowerCase()
+  return events.value.filter(event => 
+    event.name.toLowerCase().includes(query) ||
+    (event.director && event.director.toLowerCase().includes(query)) ||
+    (event.genre && event.genre.toLowerCase().includes(query))
+  )
+})
 
 const formatDateShoko = (dateStr) => {
   const date = new Date(dateStr)
@@ -20,29 +33,31 @@ const formatDateShoko = (dateStr) => {
       <div class="container">
         <h1>Troba la teva propera pel·lícula</h1>
         <p>Les millors estrenes i clàssics a Shôko Cinema Barcelona.</p>
-        <div class="search-bar-mock">
-          <input type="text" placeholder="Busca per títol, director o gènere">
+        <div class="search-bar-shoko">
+          <input v-model="searchQuery" type="text" placeholder="Busca per títol, director o gènere">
           <button class="btn-search">🔍</button>
         </div>
       </div>
     </section>
 
     <div class="container">
-      <h2 class="section-title">En Cartellera</h2>
+      <h2 class="section-title">En Cartellera ({{ filteredEvents.length }})</h2>
       
       <div v-if="error" class="error-msg">
         No s'han pogut carregar les pel·lícules. Si us plau, torna-ho a intentar més tard.
       </div>
 
       <div v-else class="event-grid">
-        <div v-for="event in events" :key="event.id" class="shoko-card">
+        <div v-for="event in filteredEvents" :key="event.id" class="shoko-card">
           <div class="image-wrapper">
             <img :src="event.image_url" :alt="event.name" class="event-image">
             <div class="badge-icon">🎬</div>
+            <div class="genre-badge">{{ event.genre }}</div>
           </div>
           <div class="card-content">
             <p class="event-date">{{ formatDateShoko(event.event_date) }}</p>
             <h3 class="event-title">{{ event.name }}</h3>
+            <p class="event-director">Dir: {{ event.director }}</p>
             <NuxtLink :to="`/events/${event.id}`" class="btn-shoko">Comprar entrades</NuxtLink>
           </div>
         </div>
@@ -160,29 +175,68 @@ const formatDateShoko = (dateStr) => {
   color: #fff;
 }
 
-.search-bar-mock {
+.search-bar-shoko {
   max-width: 600px;
-  margin: 2rem auto;
+  margin: 3rem auto;
   display: flex;
   background: #0a0a0a;
-  border: 1px solid #1a1a1a;
-  border-radius: 16px;
+  border: 1px solid #222;
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transition: all 0.3s;
 }
 
-.search-bar-mock input {
+.search-bar-shoko:focus-within {
+  border-color: #ff5500;
+  box-shadow: 0 10px 40px rgba(255, 85, 0, 0.2);
+}
+
+.search-bar-shoko input {
   flex: 1;
   background: transparent;
   border: none;
-  padding: 1rem 1.5rem;
+  padding: 1.2rem 1.5rem;
   color: #fff;
   font-weight: 700;
+  font-size: 1rem;
+}
+
+.search-bar-shoko input:focus {
+  outline: none;
 }
 
 .btn-search {
   background: transparent;
   border: none;
-  padding: 1rem;
+  padding: 1.2rem;
   cursor: pointer;
+  font-size: 1.2rem;
+  transition: transform 0.2s;
+}
+
+.btn-search:hover {
+  transform: scale(1.1);
+}
+
+.genre-badge {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  background: #ff5500;
+  color: #fff;
+  padding: 0.4rem 1rem;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.event-director {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
 }
 </style>

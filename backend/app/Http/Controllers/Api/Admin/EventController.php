@@ -87,4 +87,20 @@ class EventController extends Controller
             'occupancy_percentage' => $totalSeats > 0 ? round(($occupiedSeats / $totalSeats) * 100, 2) : 0
         ]);
     }
+
+    /**
+     * Obtenir estadístiques globals del cinema (ingressos per dia).
+     */
+    public function globalStats()
+    {
+        $salesByDate = \App\Models\Order::selectRaw('DATE(created_at) as date, SUM(total_price) as total')
+            ->where('status', 'paid')
+            ->groupBy('date')
+            ->orderBy('date', 'ASC')
+            ->get();
+
+        return response()->json([
+            'sales_evolution' => $salesByDate
+        ]);
+    }
 }

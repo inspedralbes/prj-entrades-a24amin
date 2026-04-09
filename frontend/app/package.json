@@ -2,5 +2,8 @@
   "dependencies": {
     "chart.js": "^4.5.1",
     "vue-chartjs": "^5.3.3"
+  },
+  "devDependencies": {
+    "cypress": "^15.13.1"
   }
 }

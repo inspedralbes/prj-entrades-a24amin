@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders', [OrderController::class , 'store']);
 
     // Admin / CRUD Routes
+    Route::get('/admin/stats', 'App\Http\Controllers\Api\Admin\EventController@globalStats');
     Route::get('/admin/events', 'App\Http\Controllers\Api\Admin\EventController@index');
     Route::get('/admin/events/{id}/stats', 'App\Http\Controllers\Api\Admin\EventController@stats');
     Route::post('/admin/events', 'App\Http\Controllers\Api\Admin\EventController@store');

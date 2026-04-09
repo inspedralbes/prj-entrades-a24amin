@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
-        user: null,
-        token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
+        user: useCookie('user').value || null,
+        token: useCookie('token').value || null,
     }),
 
     getters: {
@@ -22,9 +22,10 @@ export const useAuthStore = defineStore('auth', {
                 this.token = response.access_token
                 this.user = response.user
 
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('token', this.token)
-                }
+                const tokenCookie = useCookie('token')
+                const userCookie = useCookie('user')
+                tokenCookie.value = this.token
+                userCookie.value = this.user
 
                 return true
             } catch (error) {
@@ -44,9 +45,10 @@ export const useAuthStore = defineStore('auth', {
                 this.token = response.access_token
                 this.user = response.user
 
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('token', this.token)
-                }
+                const tokenCookie = useCookie('token')
+                const userCookie = useCookie('user')
+                tokenCookie.value = this.token
+                userCookie.value = this.user
 
                 return true
             } catch (error) {
@@ -69,9 +71,10 @@ export const useAuthStore = defineStore('auth', {
             } finally {
                 this.token = null
                 this.user = null
-                if (typeof window !== 'undefined') {
-                    localStorage.removeItem('token')
-                }
+                const tokenCookie = useCookie('token')
+                const userCookie = useCookie('user')
+                tokenCookie.value = null
+                userCookie.value = null
             }
         },
 
@@ -86,6 +89,8 @@ export const useAuthStore = defineStore('auth', {
                     },
                 })
                 this.user = user
+                const userCookie = useCookie('user')
+                userCookie.value = user
             } catch (error) {
                 console.error('Fetch user error:', error)
                 this.logout()

@@ -33,6 +33,14 @@ export const useEventStore = defineStore('event', {
                     this.updateSeat(update)
                 })
 
+                // Re-unir-se a la sala si es perd la connexió i es recupera
+                $socket.on('connect', () => {
+                    if (this.currentEvent) {
+                        $socket.emit('join_event', this.currentEvent.id)
+                        console.log('Re-unit a la sala', this.currentEvent.id)
+                    }
+                })
+
             } catch (err) {
                 this.error = 'Error al carregar l\'esdeveniment'
                 console.error(err)
@@ -64,8 +72,13 @@ export const useEventStore = defineStore('event', {
                 return
             }
 
-            const config = useRuntimeConfig()
+            // Guard: No processis si el seient està reservat per un altre o ocupat
             const isSelected = this.selectedSeats.find(s => s.id === seat.id)
+            if (seat.status !== 'available' && !isSelected) {
+                return
+            }
+
+            const config = useRuntimeConfig()
 
             try {
                 if (isSelected) {
@@ -97,7 +110,11 @@ export const useEventStore = defineStore('event', {
                     this.startTimer(response.expires_in)
                 }
             } catch (err) {
-                alert(err.data?.message || 'Error al processar la reserva.')
+                // Només mostrem alerta si realment hem intentat reservar un seient que crèiem lliure
+                if (!isSelected && seat.status === 'available') {
+                    alert(err.data?.message || 'Error al processar la reserva.')
+                }
+                console.error('Toggle seat error:', err)
             }
         },
 
