@@ -182,6 +182,9 @@ const isSeatSelected = (seatId) => {
 
 .seat-map-container {
   padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6rem;
 }
 
 .zone-header {

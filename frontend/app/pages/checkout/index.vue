@@ -27,8 +27,42 @@ const totalPrice = computed(() => {
 })
 
 const isProcessing = ref(false)
+const paymentData = ref({
+  cardNumber: '',
+  expiry: '',
+  cvv: '',
+  holderName: ''
+})
+
+// Watchers per al formatat real-time
+watch(() => paymentData.value.cardNumber, (newVal) => {
+  // Eliminar qualsevol caràcter que no sigui dígit
+  const digits = newVal.replace(/\D/g, '')
+  // Agrupar de 4 en 4 amb espais
+  const formatted = digits.match(/.{1,4}/g)?.join(' ') || ''
+  if (formatted !== newVal) {
+    paymentData.value.cardNumber = formatted
+  }
+})
+
+watch(() => paymentData.value.expiry, (newVal) => {
+  const digits = newVal.replace(/\D/g, '')
+  let formatted = digits
+  if (digits.length > 2) {
+    formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}`
+  }
+  if (formatted !== newVal) {
+    paymentData.value.expiry = formatted
+  }
+})
 
 const handleCheckout = async () => {
+  // Simple validation
+  if (!paymentData.value.cardNumber || !paymentData.value.expiry || !paymentData.value.cvv || !paymentData.value.holderName) {
+    alert('Si us plau, omple totes les dades de pagament.')
+    return
+  }
+
   isProcessing.value = true
   const config = useRuntimeConfig()
   
@@ -37,7 +71,11 @@ const handleCheckout = async () => {
       method: 'POST',
       body: {
         event_id: eventStore.currentEvent.id,
-        seats: eventStore.selectedSeats.map(s => s.id)
+        seats: eventStore.selectedSeats.map(s => s.id),
+        payment_info: {
+          last4: paymentData.value.cardNumber.slice(-4),
+          holder: paymentData.value.holderName
+        }
       },
       headers: {
         Authorization: `Bearer ${auth.token}`
@@ -89,14 +127,40 @@ const formatTime = (seconds) => {
         <span class="total-amount">{{ totalPrice }}€</span>
       </div>
 
-      <button 
-        class="confirm-btn" 
-        :disabled="isProcessing"
-        @click="handleCheckout">
-        {{ isProcessing ? 'PROCESSANT...' : 'FINALITZAR COMPRA' }}
-      </button>
-      
-      <NuxtLink to="/" class="back-link">← TORNAR AL MAPA</NuxtLink>
+      <!-- Payment Section -->
+      <div class="payment-section">
+        <h3 class="payment-title">Mètode de Pagament</h3>
+        <div class="payment-form">
+          <div class="form-group full">
+            <label>NÚMERO DE TARGETA</label>
+            <input v-model="paymentData.cardNumber" type="text" placeholder="0000 0000 0000 0000" maxlength="19" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>EXPIRACIÓ</label>
+              <input v-model="paymentData.expiry" type="text" placeholder="MM/YY" maxlength="5" />
+            </div>
+            <div class="form-group">
+              <label>CVV</label>
+              <input v-model="paymentData.cvv" type="password" placeholder="***" maxlength="3" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>TITULAR DE LA TARGETA</label>
+            <input v-model="paymentData.holderName" type="text" placeholder="Nom complet" />
+          </div>
+        </div>
+      </div>
+
+      <div class="actions-wrapper">
+        <button 
+          class="confirm-btn" 
+          :disabled="isProcessing"
+          @click="handleCheckout">
+          {{ isProcessing ? 'PROCESSANT...' : 'FINALITZAR COMPRA' }}
+        </button>
+        <NuxtLink to="/" class="back-link">← TORNAR AL MAPA</NuxtLink>
+      </div>
     </div>
   </div>
 </template>
@@ -116,6 +180,7 @@ const formatTime = (seconds) => {
   width: 100%;
   max-width: 600px;
   box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+  position: relative;
 }
 
 .title {
@@ -196,7 +261,9 @@ const formatTime = (seconds) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed #222;
 }
 
 .total-label {
@@ -212,8 +279,73 @@ const formatTime = (seconds) => {
   color: #ff5500;
 }
 
+/* Payment Form Styles */
+.payment-section {
+  margin-bottom: 3rem;
+}
+
+.payment-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 1.5rem;
+  letter-spacing: 2px;
+  font-weight: 900;
+}
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #666;
+  letter-spacing: 1px;
+}
+
+.form-group input {
+  background: #111;
+  border: 1px solid #222;
+  padding: 1rem;
+  border-radius: 12px;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #ff5500;
+  outline: none;
+  background: #161616;
+}
+
+/* Actions Wrapper to center the button */
+.actions-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
 .confirm-btn {
   width: 100%;
+  max-width: 350px; /* Centered and smaller as requested */
   background: #fff;
   color: #000;
   border: none;
@@ -224,7 +356,6 @@ const formatTime = (seconds) => {
   letter-spacing: 2px;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-bottom: 1.5rem;
 }
 
 .confirm-btn:hover:not(:disabled) {
@@ -240,8 +371,6 @@ const formatTime = (seconds) => {
 }
 
 .back-link {
-  display: block;
-  text-align: center;
   color: #444;
   text-decoration: none;
   font-size: 0.8rem;

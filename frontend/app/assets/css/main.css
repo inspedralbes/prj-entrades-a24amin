@@ -28,6 +28,10 @@
   /* Brown for sold */
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   background-color: var(--bg-color);
   color: var(--text-color);

@@ -22,7 +22,7 @@ const activeTab = ref('dashboard') // 'dashboard' | 'events'
 
 // Chart Data Computeds
 const occupancyChartData = computed(() => ({
-  labels: stats.value.map(s => s.event_name),
+  labels: stats.value.map((s, index) => index + 1),
   datasets: [{
     label: 'Ocupació (%)',
     backgroundColor: '#ff5500',
@@ -31,11 +31,18 @@ const occupancyChartData = computed(() => ({
 }))
 
 const salesChartData = computed(() => ({
-  labels: salesEvolution.value.map(s => s.date),
+  labels: salesEvolution.value.map(s => {
+    const d = new Date(s.date)
+    return `${d.getDate()}/${d.getMonth() + 1}`
+  }),
   datasets: [{
     label: 'Vendes (€)',
-    borderColor: '#ffd700',
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    borderColor: '#00d4ff',
+    backgroundColor: 'rgba(0, 212, 255, 0.1)',
+    borderWidth: 4,
+    pointBackgroundColor: '#00d4ff',
+    pointRadius: 6,
+    pointHoverRadius: 8,
     tension: 0.4,
     fill: true,
     data: salesEvolution.value.map(s => s.total)
@@ -230,8 +237,8 @@ const deleteEvent = async (id) => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="s in stats" :key="s.event_name">
-                <td class="name">{{ s.event_name }}</td>
+              <tr v-for="(s, index) in stats" :key="s.event_name">
+                <td class="name"><span class="movie-index">{{ index + 1 }}.</span> {{ s.event_name }}</td>
                 <td>{{ s.occupied_seats }}</td>
                 <td>{{ s.reserved_seats }}</td>
                 <td class="price">{{ s.total_revenue }}€</td>
@@ -265,9 +272,9 @@ const deleteEvent = async (id) => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="s in stats" :key="s.event_data.id">
+              <tr v-for="(s, index) in stats" :key="s.event_data.id">
                 <td>#{{ s.event_data.id }}</td>
-                <td class="name">{{ s.event_name }}</td>
+                <td class="name"><span class="movie-index">{{ index + 1 }}.</span> {{ s.event_name }}</td>
                 <td>{{ new Date(s.event_data.event_date).toLocaleDateString() }}</td>
                 <td>{{ s.event_data.location }}</td>
                 <td class="actions">
@@ -639,7 +646,8 @@ td {
   font-weight: 800;
 }
 
-.name { color: #ff5500; text-transform: uppercase; }
+.name { color: #ff5500; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
+.movie-index { color: #444; font-size: 0.8rem; font-weight: 900; }
 .price { color: #fff; }
 
 .progress-bar {

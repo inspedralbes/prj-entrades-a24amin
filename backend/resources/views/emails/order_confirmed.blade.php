@@ -51,7 +51,7 @@
         }
 
         .tickets-table {
-            widdth: 100%;
+            width: 100%;
             border-collapse: collapse;
             margin-bottom: 30px;
         }

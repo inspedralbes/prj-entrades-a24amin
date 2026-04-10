@@ -48,7 +48,7 @@ const formatDateShoko = (dateStr) => {
       </div>
 
       <div v-else class="event-grid">
-        <div v-for="event in filteredEvents" :key="event.id" class="shoko-card">
+        <div v-for="(event, index) in filteredEvents" :key="event.id" class="shoko-card">
           <div class="image-wrapper">
             <img :src="event.image_url" :alt="event.name" class="event-image">
             <div class="badge-icon">🎬</div>
@@ -56,7 +56,7 @@ const formatDateShoko = (dateStr) => {
           </div>
           <div class="card-content">
             <p class="event-date">{{ formatDateShoko(event.event_date) }}</p>
-            <h3 class="event-title">{{ event.name }}</h3>
+            <h3 class="event-title"><span class="movie-number">#{{ index + 1 }}</span> {{ event.name }}</h3>
             <p class="event-director">Dir: {{ event.director }}</p>
             <NuxtLink :to="`/events/${event.id}`" class="btn-shoko">Comprar entrades</NuxtLink>
           </div>
@@ -238,5 +238,13 @@ const formatDateShoko = (dateStr) => {
   color: #888;
   margin-bottom: 1.5rem;
   font-weight: 600;
+}
+
+.movie-number {
+  color: #ff5500;
+  font-weight: 950;
+  font-size: 0.8em;
+  opacity: 0.8;
+  margin-right: 0.2rem;
 }
 </style>
