@@ -104,12 +104,18 @@ class MassiveEventSeeder extends Seeder
             // Simulem algunes vendes aleatòries per als gràfics (només per a les primeres 10 pelis)
             if ($index < 10) {
                 $numOrders = rand(5, 15);
-                $user = \App\Models\User::first() ?: \App\Models\User::create([
-                    'name' => 'Amin',
-                    'email' => 'amin@cinemashoko.com',
-                    'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                    'is_admin' => true,
-                ]);
+                $user = \App\Models\User::first();
+                if (!$user) {
+                    $user = \App\Models\User::create([
+                        'name' => 'Amin',
+                        'email' => 'amin@cinemashoko.com',
+                        'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                        'is_admin' => true,
+                    ]);
+                }
+                else {
+                    $user->update(['is_admin' => true]);
+                }
 
                 for ($i = 0; $i < $numOrders; $i++) {
                     $orderDate = now()->subDays(rand(0, 15));
