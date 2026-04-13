@@ -1,0 +1,58 @@
+name: CLI CI Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, mysql, zip
+          coverage: none
+
+      - name: Install Dependencies
+        run: |
+          cd backend
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Prepare Environment
+        run: |
+          cd backend
+          cp .env.example .env.testing
+          php artisan key:generate --env=testing
+
+      - name: Run Pest/PHPUnit Tests
+        run: |
+          cd backend
+          php artisan test --env=testing
+
+  frontend-build:
+    name: Frontend Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Build Application
+        run: |
+          cd frontend
+          npm run build
