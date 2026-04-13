@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: entrades_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: entrades_db
+      MYSQL_USER: client
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: entrades_redis
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: entrades_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_DATABASE: entrades_db
+      DB_USERNAME: client
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+    depends_on:
+      - mysql
+      - redis
+
+  websockets:
+    build:
+      context: ./websocket-server
+      dockerfile: Dockerfile
+    container_name: entrades_sockets
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: entrades_frontend
+    restart: always
+    ports:
+      - "3080:3000"
+    environment:
+      NUXT_PUBLIC_API_BASE: https://shokocinema.daw.inspedralbes.cat/api
+      SOCKET_URL: https://shokocinema.daw.inspedralbes.cat
+
+volumes:
+  mysql_data:

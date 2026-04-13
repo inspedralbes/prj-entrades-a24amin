@@ -1,0 +1,88 @@
+services:
+  # Base de dades relacional on viu l'estat pur del servidor
+  mysql:
+    image: mysql:8.0
+    container_name: entrades_db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: entrades_db
+      MYSQL_USER: client
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+
+  # Redis per fer un enllaç de comunicacions d'altra freqüència entre Laravel i Node
+  redis:
+    image: redis:alpine
+    container_name: entrades_redis
+    ports:
+      - "6379:6379"
+
+  # Laravel (Backend principal)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: entrades_backend
+    ports:
+      - "8000:8000"
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_DATABASE: entrades_db
+      DB_USERNAME: client
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - mysql
+      - redis
+
+  # Socket.IO Server en Node.js
+  websockets:
+    image: node:20-alpine
+    container_name: entrades_sockets
+    working_dir: /app
+    volumes:
+      - ./websocket-server:/app
+    ports:
+      - "3000:3000"
+    command: >
+      sh -c "npm install && node index.js || echo 'No hi ha codi node encara, aturant.'"
+    depends_on:
+      - redis
+      - mysql
+
+  # Nuxt 3 (Frontend Vue)
+  frontend:
+    image: node:22-alpine
+    container_name: entrades_frontend
+    working_dir: /src
+    volumes:
+      - ./frontend:/src
+    ports:
+      - "3001:3000"
+    command: >
+      sh -c "npm install && npm run dev || echo 'No hi ha codi nuxt encara, aturant.'"
+    environment:
+      NUXT_API_BASE: http://backend:8000/api
+      NUXT_PUBLIC_API_BASE: http://localhost:8000/api
+      SOCKET_URL: http://localhost:3000
+      NODE_OPTIONS: "--max-old-space-size=2048"
+
+  # Adminer para gestionar la base de datos visualmente
+  adminer:
+    image: adminer
+    container_name: entrades_adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
