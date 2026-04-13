@@ -24,18 +24,11 @@ class MassiveEventSeeder extends Seeder
         $directors = ['Christopher Nolan', 'Steven Spielberg', 'Quentin Tarantino', 'Martin Scorsese', 'Greta Gerwig', 'James Cameron', 'Wes Anderson', 'Denis Villeneuve', 'Pedro Almodóvar', 'Guillermo del Toro'];
         $locations = ['Sala Premium 1', 'Sala Premium 2', 'Sala IMAX', 'Sala 4DX', 'Sala Dolby Cinema', 'Sala VIP Gold'];
 
-        $movieTitles = [
+        $movieTitles = array_slice([
             'Oppenheimer', 'Barbie', 'Dune: Part Two', 'Poor Things', 'The Holdovers', 'Napoleon', 'Killers of the Flower Moon', 'Past Lives', 'Anatomy of a Fall', 'The Zone of Interest',
             'Spider-Man: Across the Spider-Verse', 'Elemental', 'The Super Mario Bros. Movie', 'Migration', 'Wish', 'Trolls Band Together', 'Kung Fu Panda 4', 'Inside Out 2', 'Despicable Me 4', 'Moana 2',
-            'Mission: Impossible - Dead Reckoning', 'John Wick: Chapter 4', 'Fast X', 'Guardians of the Galaxy Vol. 3', 'Indiana Jones 5', 'The Flash', 'Aquaman 2', 'Blue Beetle', 'The Marvels', 'Godzilla x Kong',
-            'Late Night with the Devil', 'When Evil Lurks', 'Talk to Me', 'The First Omen', 'Civil War', 'The Creator', 'M3GAN', 'Smile', 'Barbarian', 'Pearl',
-            'Everything Everywhere All At Once', 'Top Gun: Maverick', 'Avatar: The Way of Water', 'The Batman', 'The Whale', 'Tar', 'The Banshees of Inisherin', 'Triangle of Sadness', 'Elvis', 'Babylon',
-            'Society of the Snow', 'Robot Dreams', 'Robot Dreams 2', 'Close', 'Decision to Leave', 'Holy Spider', 'The Quiet Girl', 'Alcarràs', 'Eo', 'The Worst Person in the World',
-            'Parasite', 'Joker', '1917', 'Marriage Story', 'The Irishman', 'Once Upon a Time in Hollywood', 'Jojo Rabbit', 'Little Women', 'Ford v Ferrari', 'Knives Out',
-            'The Green Knight', 'Pig', 'Titane', 'Drives My Car', 'Licorice Pizza', 'Cmon Cmon', 'Belfast', 'The Power of the Dog', 'Nightmare Alley', 'Spencer',
-            'Mad Max: Fury Road', 'The Revenant', 'Arrival', 'La La Land', 'Moonlight', 'Manchester by the Sea', 'Hidden Figures', 'Lion', 'Fences', 'Hell or High Water',
-            'The Grand Budapest Hotel', 'Boyhood', 'Birdman', 'Whiplash', 'The Imitation Game', 'Selma', 'American Sniper', 'The Theory of Everything', 'Interstellar', 'Gone Girl'
-        ];
+            'Mission: Impossible - Dead Reckoning', 'John Wick: Chapter 4', 'Fast X', 'Guardians of the Galaxy Vol. 3', 'Indiana Jones 5', 'The Flash', 'Aquaman 2', 'Blue Beetle', 'The Marvels', 'Godzilla x Kong'
+        ], 0, 30);
 
         $premiumPosters = [
             'Oppenheimer' => 'https://m.media-amazon.com/images/M/MV5BNTFlZDI1YWQtMTVjNy00YWU1LTg2YjktMTlhYmRiYzQ3NTVhXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
