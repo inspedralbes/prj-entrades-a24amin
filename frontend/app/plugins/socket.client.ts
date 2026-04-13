@@ -6,7 +6,7 @@ export default defineNuxtPlugin(() => {
     if (import.meta.client) {
         socketUrl = window.location.hostname === 'localhost'
             ? 'http://localhost:3000'
-            : window.location.origin
+            : `${window.location.protocol}//${window.location.hostname}:3000`
     }
 
     const socket = io(socketUrl, {
