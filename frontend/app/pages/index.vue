@@ -31,7 +31,7 @@ const formatDateShoko = (dateStr) => {
   <div class="shoko-home">
     <section class="hero">
       <div class="container">
-        <h1>Troba la teva propera pel·lícula</h1>
+        <h1>Troba la teva propera pel·lícula!</h1>
         <p>Les millors estrenes i clàssics a Shôko Cinema Barcelona.</p>
         <div class="search-bar-shoko">
           <input v-model="searchQuery" type="text" placeholder="Busca per títol, director o gènere">
