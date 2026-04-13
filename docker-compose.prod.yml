@@ -55,7 +55,7 @@ services:
     container_name: entrades_frontend
     restart: always
     ports:
-      - "80:3000"
+      - "3080:3000"
     environment:
       NUXT_PUBLIC_API_BASE: http://89.167.59.195:8000/api
       SOCKET_URL: http://89.167.59.195:3000
