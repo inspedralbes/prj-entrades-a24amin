@@ -57,8 +57,8 @@ services:
     ports:
       - "3080:3000"
     environment:
-      NUXT_PUBLIC_API_BASE: http://89.167.59.195:8000/api
-      SOCKET_URL: http://89.167.59.195:3000
+      NUXT_PUBLIC_API_BASE: http://shokocinema.daw.inspedralbes.cat/api
+      SOCKET_URL: http://shokocinema.daw.inspedralbes.cat
 
 volumes:
   mysql_data:
