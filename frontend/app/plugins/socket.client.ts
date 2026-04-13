@@ -4,9 +4,10 @@ export default defineNuxtPlugin(() => {
     let socketUrl = 'http://localhost:3000'
 
     if (import.meta.client) {
+        // En producció amb Nginx i SSL, el socket va pel mateix domini (port 443)
         socketUrl = window.location.hostname === 'localhost'
             ? 'http://localhost:3000'
-            : `${window.location.protocol}//${window.location.hostname}:3000`
+            : window.location.origin
     }
 
     const socket = io(socketUrl, {
