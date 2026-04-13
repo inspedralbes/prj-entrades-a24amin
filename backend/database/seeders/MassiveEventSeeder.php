@@ -108,6 +108,7 @@ class MassiveEventSeeder extends Seeder
                     'name' => 'Amin',
                     'email' => 'amin@cinemashoko.com',
                     'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                    'is_admin' => true,
                 ]);
 
                 for ($i = 0; $i < $numOrders; $i++) {
