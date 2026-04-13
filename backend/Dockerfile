@@ -13,5 +13,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
+# Copiem el codi i instal·lem dependències
+COPY . .
+RUN composer install --no-interaction --optimize-autoloader --no-dev
+
 # Quan executi el contenidor llançarà aquest comandament
 CMD php artisan serve --host=0.0.0.0 --port=8000
